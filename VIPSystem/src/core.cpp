@@ -1,7 +1,8 @@
 #include "../include/core.h"
-#include "../include/db_os.h"
+#include "../include/c_db_os.h"
 #include <sstream>
 #include <algorithm>
+#include <cstdlib>
 
 VIPSystemCore::VIPSystemCore(const std::string &usersPath,
                              const std::string &productsPath,
@@ -27,34 +28,46 @@ int VIPSystemCore::nextTransactionId() const {
 
 bool VIPSystemCore::loadAll() {
     _users.clear(); _products.clear(); _transactions.clear();
-    std::string buf;
     // users
-    if (db_os::read_entire_file(_usersPath, buf)) {
-        std::istringstream iss(buf);
-        std::string line;
-        while (std::getline(iss, line)) {
-            if (line.empty()) continue;
-            _users.push_back(User::fromCsv(line));
+    {
+        char *cbuf = NULL; size_t len = 0;
+        if (dbos_read_entire_file(_usersPath.c_str(), &cbuf, &len)) {
+            std::string buf(cbuf, len);
+            free(cbuf);
+            std::istringstream iss(buf);
+            std::string line;
+            while (std::getline(iss, line)) {
+                if (line.empty()) continue;
+                _users.push_back(User::fromCsv(line));
+            }
         }
     }
     // products
-    buf.clear();
-    if (db_os::read_entire_file(_productsPath, buf)) {
-        std::istringstream iss(buf);
-        std::string line;
-        while (std::getline(iss, line)) {
-            if (line.empty()) continue;
-            _products.push_back(Product::fromCsv(line));
+    {
+        char *cbuf = NULL; size_t len = 0;
+        if (dbos_read_entire_file(_productsPath.c_str(), &cbuf, &len)) {
+            std::string buf(cbuf, len);
+            free(cbuf);
+            std::istringstream iss(buf);
+            std::string line;
+            while (std::getline(iss, line)) {
+                if (line.empty()) continue;
+                _products.push_back(Product::fromCsv(line));
+            }
         }
     }
     // transactions
-    buf.clear();
-    if (db_os::read_entire_file(_transPath, buf)) {
-        std::istringstream iss(buf);
-        std::string line;
-        while (std::getline(iss, line)) {
-            if (line.empty()) continue;
-            _transactions.push_back(Transaction::fromCsv(line));
+    {
+        char *cbuf = NULL; size_t len = 0;
+        if (dbos_read_entire_file(_transPath.c_str(), &cbuf, &len)) {
+            std::string buf(cbuf, len);
+            free(cbuf);
+            std::istringstream iss(buf);
+            std::string line;
+            while (std::getline(iss, line)) {
+                if (line.empty()) continue;
+                _transactions.push_back(Transaction::fromCsv(line));
+            }
         }
     }
     return true;
@@ -66,21 +79,21 @@ bool VIPSystemCore::saveAll() {
     for (size_t i = 0; i < _users.size(); ++i) {
         us << _users[i].toCsv() << "\n";
     }
-    if (!db_os::write_entire_file(_usersPath, us.str())) return false;
+    if (!dbos_write_entire_file(_usersPath.c_str(), us.str().c_str(), us.str().size())) return false;
 
     // products
     std::ostringstream ps;
     for (size_t i = 0; i < _products.size(); ++i) {
         ps << _products[i].toCsv() << "\n";
     }
-    if (!db_os::write_entire_file(_productsPath, ps.str())) return false;
+    if (!dbos_write_entire_file(_productsPath.c_str(), ps.str().c_str(), ps.str().size())) return false;
 
     // transactions
     std::ostringstream ts;
     for (size_t i = 0; i < _transactions.size(); ++i) {
         ts << _transactions[i].toCsv() << "\n";
     }
-    if (!db_os::write_entire_file(_transPath, ts.str())) return false;
+    if (!dbos_write_entire_file(_transPath.c_str(), ts.str().c_str(), ts.str().size())) return false;
 
     return true;
 }

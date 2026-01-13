@@ -55,9 +55,6 @@ public:
 
     ~VipSystem(){ clearMembers(); }
 
-public:
-    void run();
-
 private:
     // 文件读写
     void loadMembers(){
@@ -161,7 +158,6 @@ private:
     }
 
     // 内部工具
-    void clearMembers();
     Member* findMember(const string &memberId) const{
         auto it = mMembers.find(memberId);
         if(it == mMembers.end()) return nullptr;
@@ -444,7 +440,7 @@ private:
             << "，累计积分=" << totalPoints << "\n";
     }
 
-    void VipSystem::queryTransactionsByDateRange() {
+    void queryTransactionsByDateRange() {
         printTitle("按日期范围查询消费记录");
 
         cin.ignore(1024, '\n');
@@ -567,6 +563,7 @@ private:
     }
 
 /**************** 主循环 ****************/
+public:
     void run() {
         loadAll();
 

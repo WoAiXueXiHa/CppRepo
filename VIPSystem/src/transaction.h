@@ -20,7 +20,7 @@ public:
 
 public:
    
-    Transaction::Transaction()
+    Transaction()
         : transactionId(0)
         ,dateKey(0)
         ,amount(0.0)

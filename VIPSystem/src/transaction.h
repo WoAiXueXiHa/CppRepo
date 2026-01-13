@@ -1,36 +1,32 @@
 #pragma once
 #include <string>
+#include <sstream>
+#include <iomanip>
+
+using namespace std;
 
 /*
- * 一条消费记录
- *  date: 用于展示/保存（YYYY-MM-DD）
- *  dateKey: 用于比较/筛选（yyyymmdd）
+ * 消费记录 文件存储 + 查询展示
+ * - dateKey：yyyymmdd 
  */
 
 class Transaction {
 public:
-    long        transactionId; // 自增交易号
-    string memberId;      // 会员号
-    string date;          // YYYY-MM-DD
-    int         dateKey;       // yyyymmdd
-    string item;          // 商品/备注
-    double      amount;        // 原价
-    double      pay;           // 实付
-    int         pointsEarned;  // 本次获得积分
+    long   transactionId;
+    string memberId;
+    string date;
+    int    dateKey;
+    string item;
+    double amount;
+    double pay;
+    int    pointsEarned;
 
 public:
-   
     Transaction()
-        : transactionId(0)
-        ,dateKey(0)
-        ,amount(0.0)
-        ,pay(0.0)
-        ,pointsEarned(0) 
-        {}
+        : transactionId(0), dateKey(0), amount(0.0), pay(0.0), pointsEarned(0) {}
 
-    // 写入 txt文件
     // transactionId | memberId | date | item | amount | pay | pointsEarned
-    string infoTxt() const{
+    string infoTxt() const {
         ostringstream oss;
         oss << transactionId << " | "
             << memberId << " | "
@@ -42,4 +38,3 @@ public:
         return oss.str();
     }
 };
-

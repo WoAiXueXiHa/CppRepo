@@ -1,47 +1,39 @@
 #pragma once
 #include <string>
-#include <iostream>
-#include <iomanip>
 #include <sstream>
+#include <iostream>
+
 using namespace std;
+
 /*
- * 会员体系 继承 + 动态
- *  Member 为抽象父类：discountRate/levelName/levelCode/clone
- *  RegularMember / VipMember / SvipMember 为子类
+ * 会员体系（继承 + 动态）
+ * - Member：抽象基类（虚函数：折扣/等级）
+ * - Regular/VIP/SVIP：派生类
  */
 
 class Member {
 protected:
-    string mId;                // ID
-    string mName;              // 姓名
-    string mPhone;             // 手机号
-    int         mPoints;            // 积分
-    string mJoinDate;          // 入会时间
+    string mId;
+    string mName;
+    string mPhone;
+    int    mPoints;
+    string mJoinDate;
 
 public:
     Member() : mPoints(0) {}
 
-    Member(const string& id, const string &name, 
-           const string& phone, int points, 
-           const string& joinDate)
-        :mId(id)
-        ,mName(name)
-        ,mPhone(phone)
-        ,mPoints(points)
-        ,mJoinDate(joinDate) 
-        {}
+    Member(const string& id, const string& name, const string& phone,
+           int points, const string& joinDate)
+        : mId(id), mName(name), mPhone(phone), mPoints(points), mJoinDate(joinDate) {}
+    
+    //必须vir析构 保证delete子类正常
+    virtual ~Member() {}
 
-    virtual ~Member(){}
-
-    // 动态多态接口
-    // 折扣率
-    virtual double discountRate() const;
-    // 会员级别
-    virtual string levelName() const;
-    // 会员级别编码
-    virtual int levelCode() const;
-    // 拷贝
-    virtual Member* clone() const;
+    // 多态接口 不同等级返回不同折扣/名称
+    // 只拿Member指针 运行时自动分配到子类
+    virtual double discountRate() const = 0;
+    virtual string levelName() const = 0;
+    virtual int    levelCode() const = 0;
 
     // get函数
     const string& getId() const { return mId; }
@@ -50,117 +42,59 @@ public:
     int getPoints() const { return mPoints; }
     const string& getJoinDate() const { return mJoinDate; }
 
-
     // set函数
-    void setName(const string& name){ mName = name; }
-    void setPhone(const string& phone){ mPhone = phone; }
+    void setName(const string& name) { mName = name; }
+    void setPhone(const string& phone) { mPhone = phone; }
 
-    // 积分更新
     void addPoints(int delta) {
         mPoints += delta;
-        if (mPoints < 0) 
-            mPoints = 0;
+        if (mPoints < 0) mPoints = 0;   // 积分不可能为负数
     }
 
-    // 写入文件一行
+    // 写入文件 统一用 | 分隔 和读取逻辑完全一致 
     string infoTxt() const {
-    // id | name | phone | level | points | joinDate
-    ostringstream oss;
-    oss << mId << " | "
-        << mName << " | "
-        << mPhone << " | "
-        << levelCode() << " | "
-        << mPoints << " | "
-        << mJoinDate;
-    return oss.str();
-}
-
-    // 会员列表展示
-    void printRow() const {
-        // 处理控制默认值
-        const string& showName 
-            = mName.empty() ? "未知姓名" : mName;
-        const string& showJoinDate 
-            = mJoinDate.empty() ? "未知日期" : mJoinDate;
-        // 格式化输出
-        // 左对齐/右对齐结合 固定列宽 
-        cout << left << setw(12) << mId          // 左对齐 列宽12
-                  << left << setw(10) << showName     // 左对齐 列宽10
-                  << left << setw(14) << mPhone       // 左对齐 列宽14
-                  << left << setw(8)  << levelName()  // 左对齐 列宽8
-                  << right << setw(8) << mPoints      // 右对齐 列宽8
-                  << left << setw(12) << showJoinDate;// 左对齐 列宽12
-        cout << "\n";
+        ostringstream oss;
+        oss << mId << " | " << mName << " | " << mPhone << " | "
+            << levelCode() << " | " << mPoints << " | " << mJoinDate;
+        return oss.str();
     }
 };
 
-// 常规会员
 class RegularMember : public Member {
 public:
-    RegularMember(){}
-    RegularMember(const string &id,
-                  const string &name,
-                  const string &phone,
-                  int points,
-                  const string &joinDate)
-        :Member(id, name, phone, points, joinDate)
-        {}
-
-    virtual double discountRate() const { return 1.0; }
-    virtual string levelName() const{ return "普通";}
-    virtual int levelCode() const{ return 0; }
-    virtual Member* clone() const{ return new RegularMember(*this); }
+    using Member::Member;
+    double discountRate() const override { return 1.0; }
+    string levelName() const override { return "普通"; }
+    int levelCode() const override { return 0; }
 };
 
-// VIP
 class VipMember : public Member {
 public:
-    VipMember(){}
-    VipMember(const string &id,
-              const string &name,
-              const string &phone,
-              int points,
-              const string &joinDate)
-        :Member(id, name, phone, points, joinDate)
-        {}
-    virtual double discountRate() const{ return 0.95; }
-    virtual string levelName() const{ return "VIP"; }
-    virtual int levelCode() const{ return 1; }
-    virtual Member* clone() const{ return new VipMember(*this); }
+    using Member::Member;
+    double discountRate() const override { return 0.95; }
+    string levelName() const override { return "VIP"; }
+    int levelCode() const override { return 1; }
 };
 
-// 超级VIP
 class SvipMember : public Member {
 public:
-    SvipMember(){}
-    SvipMember(const string &id,
-               const string &name,
-               const string &phone,
-               int points,
-               const string &joinDate)
-        :Member(id, name, phone, points, joinDate)
-        {}
-
-    virtual double discountRate() const{ return 0.85; }
-    virtual string levelName() const{ return "SVIP"; }
-    virtual int levelCode() const{ return 2; }
-    virtual Member* clone() const{ return new SvipMember(*this); }
+    using Member::Member;
+    double discountRate() const override { return 0.85; }
+    string levelName() const override { return "SVIP"; }
+    int levelCode() const override { return 2; }
 };
 
-// 根据等级编码创建对应类型的派生类对象
-// 主要用于从文件读取数据后 恢复对应类型的会员对象 不用直接实例化派生类
-Member* createMemberByLevel(int levelCode,
-                            const string &id,
-                            const string &name,
-                            const string &phone,
-                            int points,
-                            const string &joinDate){
-    if (levelCode == 1) 
-        return new VipMember(id, name, phone, points, joinDate);
-
-    if (levelCode == 2) return 
-        new SvipMember(id, name, phone, points, joinDate);
-
-    return new RegularMember(id, name, phone, points, joinDate);                           
+/*
+ * 从文件读 levelCode 后创建对应对象
+ * 返回 new 出来的指针 由 VipSystem 统一 delete（避免内存泄漏）
+ */
+inline Member* createMemberByLevel(int levelCode,
+                                  const string& id,
+                                  const string& name,
+                                  const string& phone,
+                                  int points,
+                                  const string& joinDate) {
+    if (levelCode == 1) return new VipMember(id, name, phone, points, joinDate);
+    if (levelCode == 2) return new SvipMember(id, name, phone, points, joinDate);
+    return new RegularMember(id, name, phone, points, joinDate);
 }
-

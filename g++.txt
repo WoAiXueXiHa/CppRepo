@@ -1,4 +1,0 @@
-g++ -o proc main.cpp
-
-rm -f proc
-

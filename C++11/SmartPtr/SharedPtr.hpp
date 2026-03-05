@@ -16,7 +16,7 @@ private:
     // 封装释放逻辑
     void release() {
         if(_ref_cnt) (*_ref_cnt)--;
-        if(_ref_cnt == nullptr) {
+        if(*_ref_cnt == 0) {
             delete _ptr;
             delete _ref_cnt;
         }

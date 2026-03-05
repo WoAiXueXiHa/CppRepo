@@ -26,11 +26,13 @@ public:
            int points, const string& joinDate)
         : mId(id), mName(name), mPhone(phone), mPoints(points), mJoinDate(joinDate) {}
     
-    //必须vir析构 保证delete子类正常
+    // 必须vir析构 
+    // 保证delete基类指针时 先调用子类析构 再调用基类析构
     virtual ~Member() {}
 
     // 多态接口 不同等级返回不同折扣/名称
     // 只拿Member指针 运行时自动分配到子类
+    // 多态： 基类纯虚函数 派生类重写 调用基类指针or引用
     virtual double discountRate() const = 0;
     virtual string levelName() const = 0;
     virtual int    levelCode() const = 0;
@@ -62,6 +64,7 @@ public:
 
 class RegularMember : public Member {
 public:
+    // C++11 继承基类的有参构造函数
     using Member::Member;
     double discountRate() const override { return 1.0; }
     string levelName() const override { return "普通"; }

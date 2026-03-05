@@ -60,7 +60,6 @@ public:
         clearMembers(); // 统一释放 Member*
     }
 
-public:
     void run() {
         loadAll();
 
@@ -322,7 +321,7 @@ private:
         }
         mTransactions.swap(remain);
 
-        // 先 delete 再 erase
+        // 先 delete 释放堆内存 再 erase 释放容器元素
         delete it->second;
         mMembers.erase(it);
 

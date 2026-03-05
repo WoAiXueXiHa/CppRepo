@@ -32,6 +32,7 @@ public:
             << memberId << " | "
             << date << " | "
             << item << " | "
+            // fixed 固定小数格式 setprecision 保留两位小数
             << fixed << setprecision(2) << amount << " | "
             << fixed << setprecision(2) << pay << " | "
             << pointsEarned;

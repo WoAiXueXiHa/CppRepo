@@ -20,6 +20,7 @@ using namespace std;
 
 namespace util {
 
+    // 去除空格
     inline string trim(const string& s) {
         size_t b = 0;
         while (b < s.size() && (s[b] == ' ' || s[b] == '\t' || s[b] == '\n' || s[b] == '\r')) ++b;
@@ -28,6 +29,7 @@ namespace util {
         return s.substr(b, e - b);
     }
 
+    // |分割
     inline vector<string> splitByPipe(const string& line) {
         // 文件行格式：字段之间用 | 分隔
         // 字段两侧可能有空格 所以 push 之前必须 trim
@@ -45,21 +47,21 @@ namespace util {
         return parts;
     }
 
+    // 日期字符->日期数字
     // YYYY-MM-DD -> yyyymmdd
-    //  year*10000 *1000 好像都有点问题 todo
     inline int dateToInt(const string& date) {
         // date 来自用户输入或文件 可能为空
         if (date.size() != 10) return 0;
         if (date[4] != '-' || date[7] != '-') return 0; 
-
+        // 开始索引 数量
         int y = atoi(date.substr(0, 4).c_str());
         int m = atoi(date.substr(5, 2).c_str());
         int d = atoi(date.substr(8, 2).c_str());
 
-        // 最小范围校验 没有加闰年
+        // 范围校验 没有加闰年->todo
         if (m < 1 || m > 12) return 0;
         if (d < 1 || d > 31) return 0;
-
+        // 20250000 1200
         return y * 10000 + m * 100 + d;
     }
 

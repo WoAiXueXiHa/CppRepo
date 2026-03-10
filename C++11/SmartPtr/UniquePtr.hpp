@@ -51,5 +51,5 @@ public:
     // 解引用* 拿实体，要的是指针指向的那个东西本身
     T& operator*() const { return *_ptr; }
     // 成员访问符-> 拿动作，要调用整个对象的成员
-    T* operator-> const { return _ptr; }
+    T* operator->() const { return _ptr; }
 };
